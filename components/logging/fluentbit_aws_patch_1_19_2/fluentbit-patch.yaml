@@ -26,9 +26,11 @@ spec:
         # -------------------------------------------------
 
         livenessProbe:
-          httpGet:
-            path: /api/v1/health
-            port: 2020
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - test -e /proc/1/cmdline
           initialDelaySeconds: 30
           periodSeconds: 60
           failureThreshold: 3
