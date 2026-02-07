@@ -10,6 +10,13 @@ configMapGenerator:
     behavior: replace
     files:
       - elk.conf          
+patchesJson6902:
+- target:
+    group: apps
+    version: v1
+    kind: DaemonSet
+    name: fluent-bit
+  path: patch-remove-liveness-httpget.yaml
 
 patchesStrategicMerge:
   - fluentbit-config-patch.yaml
