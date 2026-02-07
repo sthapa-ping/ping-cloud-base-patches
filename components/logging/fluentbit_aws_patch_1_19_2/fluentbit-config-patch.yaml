@@ -3,62 +3,89 @@ kind: ConfigMap
 metadata:
   name: fluent-bit-config
   namespace: elastic-stack-logging
-$patch: merge
 data:
   fluent-bit.conf: |-
     [SERVICE]
-        # Flush interval in seconds.
+        # -------------------------------------------------
+        # Core runtime
+        # -------------------------------------------------
+
+        # Flush interval in seconds (low latency, acceptable CPU)
         Flush                     1
 
-        # Run in foreground mode (required for containers).
-        Daemon                    off
+        # Required for containerized execution
+        Daemon                    Off
 
-        # File containing parser definitions.
+        # Parser definitions
         Parsers_File              parsers.conf
 
-        # ================= Resilience & Buffering =================
 
-        # Base directory for filesystem buffering.
+        # -------------------------------------------------
+        # Filesystem buffering & backpressure (Fluent Bit v4.x)
+        # -------------------------------------------------
+
+        # Base directory for filesystem-backed buffering
         storage.path              /fluent-bit/state/flb-storage
 
-        # Use OS-level buffering for disk writes.
+        # HARD global disk safety cap (REQUIRED)
+        # Prevents node disk exhaustion during prolonged outages
+        # When reached, Fluent Bit tail-drops oldest data
+        storage.total_limit_size  1G
+
+        # Use OS buffering for best throughput
         storage.sync              normal
 
-        # Disable per-chunk checksum to reduce CPU overhead in v4.x.
+        # Disable per-chunk checksum (recommended for logs)
         storage.checksum          off
 
-        # Maximum amount of RAM used for pending chunks before spilling to disk.
-        # This acts as a global safety valve.
+        # Max RAM used for backlog before spilling to disk
+        # Protects pod memory during output failures
         storage.backlog.mem_limit 50M
 
-        # Maximum number of chunks allowed to be "up" (active) in memory.
-        # This ensures the pod doesn't exceed its memory limits during bursts.
+        # Max number of active (in-memory) chunks
+        # Prevents runaway memory growth
         storage.max_chunks_up     2000
 
-        # Enable storage-related metrics for monitoring and alerting.
+        # Expose storage-related metrics via HTTP endpoint
         storage.metrics           on
 
-        # ================= Retry & Scheduler =================
 
-        # Modern Scheduler settings: retries grow exponentially.
+        # -------------------------------------------------
+        # Scheduler & retry behavior (unified scheduler v4.x)
+        # -------------------------------------------------
+
+        # Initial retry delay (seconds)
         scheduler.base            3
+
+        # Maximum retry backoff cap (seconds)
         scheduler.cap             180
 
-        # ================= Shutdown Handling =================
 
-        # Time allowed to flush data on SIGTERM.
+        # -------------------------------------------------
+        # Shutdown handling
+        # -------------------------------------------------
+
+        # Time Fluent Bit will attempt to flush on SIGTERM
+        # Must be < terminationGracePeriodSeconds
         Grace                     30
 
-        # ================= Health & Metrics =================
 
-        # Enable the HTTP server for the new /api/v1/health endpoint.
+        # -------------------------------------------------
+        # Health & observability
+        # -------------------------------------------------
+
+        # Enable HTTP server for metrics & health
         HTTP_Server               On
         HTTP_Listen               0.0.0.0
         HTTP_Port                 2020
 
-        # Enables readiness checks based on actual pipeline state (v3.x+ feature).
+        # Health reflects pipeline state (readiness semantics)
         Health_Check              On
 
-    # ================= Pipelines =================
-    # Include the separate pipeline definition file.
+
+    # -------------------------------------------------
+    # Pipelines
+    # -------------------------------------------------
+    # Inputs, filters, and outputs are defined separately
     @INCLUDE elk.conf
+
