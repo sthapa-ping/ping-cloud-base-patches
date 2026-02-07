@@ -25,13 +25,10 @@ spec:
         # Health Probes (FIXED)
         # -------------------------------------------------
 
-        # Liveness: restart ONLY if process is gone
         livenessProbe:
-          exec:
-            command:
-              - /bin/sh
-              - -c
-              - pgrep fluent-bit >/dev/null
+          httpGet:
+            path: /api/v1/health
+            port: 2020
           initialDelaySeconds: 30
           periodSeconds: 60
           failureThreshold: 3
