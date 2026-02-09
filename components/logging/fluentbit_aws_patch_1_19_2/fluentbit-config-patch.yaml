@@ -3,89 +3,127 @@ kind: ConfigMap
 metadata:
   name: fluent-bit-config
   namespace: elastic-stack-logging
+  labels:
+    app: fluent-bit
 data:
   fluent-bit.conf: |-
+    # ============================================================
+    # AWS for Fluent Bit v3.2.1 (Fluent Bit v4.2.2)
+    # ============================================================
+
     [SERVICE]
         # -------------------------------------------------
-        # Core runtime
+        # Core Runtime Settings
         # -------------------------------------------------
-
-        # Flush interval in seconds (low latency, acceptable CPU)
+        
+        # Flush interval (seconds) - balanced for latency vs throughput
+        # v4.x has better event loop, can handle frequent flushes
         Flush                     1
-
-        # Required for containerized execution
+        
+        # Required for containerized environments
         Daemon                    Off
-
+        
+        # Logging level for Fluent Bit itself
+        # Options: error, warning, info, debug, trace
+        Log_Level                 info
+        
         # Parser definitions
         Parsers_File              parsers.conf
-
-
+        
+        
         # -------------------------------------------------
-        # Filesystem buffering & backpressure (Fluent Bit v4.x)
+        # Storage & Backpressure (v4.x Enhanced)
         # -------------------------------------------------
-
-        # Base directory for filesystem-backed buffering
+        
+        # Base directory for filesystem buffering
+        # Must match volumeMount in DaemonSet
         storage.path              /fluent-bit/state/flb-storage
-
-        # HARD global disk safety cap (REQUIRED)
-        # Prevents node disk exhaustion during prolonged outages
-        # When reached, Fluent Bit tail-drops oldest data
-        storage.total_limit_size  1G
-
-        # Use OS buffering for best throughput
+        
+        # CRITICAL: Hard limit to prevent node disk exhaustion
+        # When hit, oldest chunks are tail-dropped
+        storage.total_limit_size  2G
+        
+        # Synchronization mode for filesystem writes
         storage.sync              normal
-
-        # Disable per-chunk checksum (recommended for logs)
+        
+        # Disable checksum for better performance on log data
         storage.checksum          off
-
-        # Max RAM used for backlog before spilling to disk
-        # Protects pod memory during output failures
-        storage.backlog.mem_limit 50M
-
-        # Max number of active (in-memory) chunks
-        # Prevents runaway memory growth
-        storage.max_chunks_up     2000
-
-        # Expose storage-related metrics via HTTP endpoint
+        
+        # Maximum RAM for buffered chunks before spilling to disk
+        # Protects pod from OOM during output failures
+        # Should be ~25-40% of pod memory limit
+        storage.backlog.mem_limit 512M
+        
+        # Maximum number of chunks kept in memory
+        # v4.x has better chunk management
+        # Higher values = better throughput under load
+        storage.max_chunks_up     3000
+        
+        # Expose storage metrics via HTTP API
         storage.metrics           on
-
-
+        
+        
         # -------------------------------------------------
-        # Scheduler & retry behavior (unified scheduler v4.x)
+        # Unified Scheduler (v4.x Feature)
         # -------------------------------------------------
-
-        # Initial retry delay (seconds)
-        scheduler.base            3
-
+        
+        # Base retry delay in seconds
+        # v4.x scheduler provides better backoff behavior
+        scheduler.base            5
+        
         # Maximum retry backoff cap (seconds)
-        scheduler.cap             180
-
-
+        # Prevents exponential backoff from growing too large
+        scheduler.cap             300
+        
+        
         # -------------------------------------------------
-        # Shutdown handling
+        # Shutdown & Grace Period
         # -------------------------------------------------
-
-        # Time Fluent Bit will attempt to flush on SIGTERM
-        # Must be < terminationGracePeriodSeconds
-        Grace                     30
-
-
+        
+        # Time to flush data on SIGTERM before hard stop
+        # Must be < pod terminationGracePeriodSeconds (60s)
+        Grace                     45
+        
+        
         # -------------------------------------------------
-        # Health & observability
+        # Health & Metrics (Enhanced in v4.x)
         # -------------------------------------------------
-
-        # Enable HTTP server for metrics & health
+        
+        # Enable HTTP server for health checks and metrics
         HTTP_Server               On
         HTTP_Listen               0.0.0.0
         HTTP_Port                 2020
-
-        # Health reflects pipeline state (readiness semantics)
+        
+        # Health endpoint reflects pipeline state
+        # Used by readinessProbe
         Health_Check              On
+        
+        # Enable built-in metrics
+        # Accessible at http://localhost:2020/api/v1/metrics/prometheus
+        # NEW in v4.x: Better metric granularity
+        storage.metrics           on
+        
+        
+        # -------------------------------------------------
+        # Performance Tuning (v4.x)
+        # -------------------------------------------------
+        
+        # Hot reload support (v4.x feature)
+        # Allows config updates without pod restart
+        # hot_reload                on
+        
+        # DNS mode: prefer asynchronous lookups
+        # v4.x has improved async DNS handling
+        dns.mode                  async
+        
+        # Worker threads for parallel event processing
+        # Helps with high-throughput scenarios
+        # Comment out to use default (automatic)
+        # workers                   4
 
 
     # -------------------------------------------------
-    # Pipelines
+    # Pipeline Configuration
     # -------------------------------------------------
-    # Inputs, filters, and outputs are defined separately
+    # Inputs, filters, and outputs defined in separate file
     @INCLUDE elk.conf
-
