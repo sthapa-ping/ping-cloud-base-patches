@@ -12,6 +12,9 @@ spec:
         - name: fluent-bit-pipeline-hipaa-inputs
           mountPath: /fluent-bit/etc/pipeline-hipaa-inputs.conf
           subPath: pipeline-hipaa-inputs.conf
+        - name: fluent-bit-pipeline-hipaa-filters
+          mountPath: /fluent-bit/etc/pipeline-hipaa-filters.conf
+          subPath: pipeline-hipaa-filters.conf
         - name: fluent-bit-pipeline-hipaa-outputs
           mountPath: /fluent-bit/etc/pipeline-hipaa-outputs.conf
           subPath: pipeline-hipaa-outputs.conf
@@ -19,6 +22,9 @@ spec:
       - name: fluent-bit-pipeline-hipaa-inputs
         configMap:
           name: fluent-bit-pipeline-hipaa-inputs
+      - name: fluent-bit-pipeline-hipaa-filters
+        configMap:
+          name: fluent-bit-pipeline-hipaa-filters
       - name: fluent-bit-pipeline-hipaa-outputs
         configMap:
           name: fluent-bit-pipeline-hipaa-outputs

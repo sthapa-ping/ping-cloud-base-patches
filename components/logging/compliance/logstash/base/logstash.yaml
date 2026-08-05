@@ -140,6 +140,11 @@ spec:
             configMapKeyRef:
               name: s3-telemetry-bucket
               key: bucketName
+        - name: HIPAA_BUCKET_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: s3-hipaa-bucket
+              key: bucketName
         envFrom:
         - configMapRef:
             name: elk-environment-variables
