@@ -13,10 +13,6 @@ configMapGenerator:
   namespace: elastic-stack-logging
   files:
   - configs/pipeline-lake-filters.conf
-- name: fluent-bit-pipeline-lake-parsers
-  namespace: elastic-stack-logging
-  files:
-  - configs/lake-parsers.conf
 - name: fluent-bit-pipeline-lake-outputs
   namespace: elastic-stack-logging
   files:
