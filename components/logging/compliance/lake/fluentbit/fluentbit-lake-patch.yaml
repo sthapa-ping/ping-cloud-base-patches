@@ -12,6 +12,9 @@ spec:
         - name: fluent-bit-pipeline-lake-inputs
           mountPath: /fluent-bit/etc/pipeline-lake-inputs.conf
           subPath: pipeline-lake-inputs.conf
+        - name: fluent-bit-pipeline-lake-filters
+          mountPath: /fluent-bit/etc/pipeline-lake-filters.conf
+          subPath: pipeline-lake-filters.conf
         - name: fluent-bit-pipeline-lake-outputs
           mountPath: /fluent-bit/etc/pipeline-lake-outputs.conf
           subPath: pipeline-lake-outputs.conf
