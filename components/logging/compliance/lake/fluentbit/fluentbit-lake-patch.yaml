@@ -14,7 +14,7 @@ spec:
         - -c
         - |
           export S3_BUCKET_NAME="${S3_BUCKET#s3://}"; \
-          exec /entrypoint.sh -R /fluent-bit/etc/pipeline-lake-parsers.conf -c /fluent-bit/etc/fluent-bit.conf
+          exec /entrypoint.sh -R /fluent-bit/etc/lake-parsers.conf -c /fluent-bit/etc/fluent-bit.conf
         volumeMounts:
         - name: fluent-bit-pipeline-lake-inputs
           mountPath: /fluent-bit/etc/pipeline-lake-inputs.conf
@@ -23,8 +23,8 @@ spec:
           mountPath: /fluent-bit/etc/pipeline-lake-filters.conf
           subPath: pipeline-lake-filters.conf
         - name: fluent-bit-pipeline-lake-parsers
-          mountPath: /fluent-bit/etc/pipeline-lake-parsers.conf
-          subPath: pipeline-lake-parsers.conf
+          mountPath: /fluent-bit/etc/lake-parsers.conf
+          subPath: lake-parsers.conf
         - name: fluent-bit-pipeline-lake-outputs
           mountPath: /fluent-bit/etc/pipeline-lake-outputs.conf
           subPath: pipeline-lake-outputs.conf
