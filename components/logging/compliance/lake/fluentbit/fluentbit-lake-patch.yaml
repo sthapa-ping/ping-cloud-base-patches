@@ -22,6 +22,9 @@ spec:
       - name: fluent-bit-pipeline-lake-inputs
         configMap:
           name: fluent-bit-pipeline-lake-inputs
+      - name: fluent-bit-pipeline-lake-filters
+        configMap:
+          name: fluent-bit-pipeline-lake-filters
       - name: fluent-bit-pipeline-lake-outputs
         configMap:
           name: fluent-bit-pipeline-lake-outputs
