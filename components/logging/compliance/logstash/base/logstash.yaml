@@ -194,7 +194,7 @@ spec:
           mountPath: /usr/share/logstash/config
         - name: logstash-logs
           mountPath: /usr/share/logstash/logs
-        - name: logstash-elastic-compliance
+        - name: logstash-gp3
           mountPath: /data/pq
           readOnly: false
       terminationGracePeriodSeconds: 60
@@ -210,7 +210,7 @@ spec:
   serviceName: logstash-elastic-compliance
   volumeClaimTemplates:
   - metadata:
-      name: logstash-elastic-compliance
+      name: logstash-gp3
       annotations:
         volume.autoscaler.kubernetes.io/scale-above-percent: "85"
         volume.autoscaler.kubernetes.io/scale-up-percent: "25"
@@ -219,7 +219,7 @@ spec:
     spec:
       accessModes:
       - ReadWriteOnce
-      storageClassName: logstash-elastic-compliance
+      storageClassName: logstash-compliance-gp3
       resources:
         requests:
           storage: 10Gi
