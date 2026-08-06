@@ -140,7 +140,7 @@ spec:
             configMapKeyRef:
               name: s3-telemetry-bucket
               key: bucketName
-        - name: HIPAA_BUCKET_NAME
+        - name: S3_BUCKET_NAME_HIPAA
           valueFrom:
             configMapKeyRef:
               name: s3-hipaa-bucket
