@@ -9,22 +9,10 @@ spec:
       containers:
       - name: fluent-bit
         volumeMounts:
-        - name: fluent-bit-pipeline-lake-inputs
-          mountPath: /fluent-bit/etc/pipeline-lake-inputs.conf
-          subPath: pipeline-lake-inputs.conf
-        - name: fluent-bit-pipeline-lake-filters
-          mountPath: /fluent-bit/etc/pipeline-lake-filters.conf
-          subPath: pipeline-lake-filters.conf
-        - name: fluent-bit-pipeline-lake-outputs
-          mountPath: /fluent-bit/etc/pipeline-lake-outputs.conf
-          subPath: pipeline-lake-outputs.conf
+        - name: fluent-bit-pipeline-lake
+          mountPath: /fluent-bit/etc/pipeline-lake.conf
+          subPath: pipeline-lake.conf
       volumes:
-      - name: fluent-bit-pipeline-lake-inputs
+      - name: fluent-bit-pipeline-lake
         configMap:
-          name: fluent-bit-pipeline-lake-inputs
-      - name: fluent-bit-pipeline-lake-filters
-        configMap:
-          name: fluent-bit-pipeline-lake-filters
-      - name: fluent-bit-pipeline-lake-outputs
-        configMap:
-          name: fluent-bit-pipeline-lake-outputs
+          name: fluent-bit-pipeline-lake
